@@ -1,0 +1,6 @@
+#define MAINICON 100
+#define ATLAS 102
+#define IDC_CUSTOM_HOLD 104
+#define IDC_CUSTOM_DRAG 105
+#define PROMOTE_PAWN 106
+#define TEXTFILE  256

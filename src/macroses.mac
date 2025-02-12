@@ -1,0 +1,139 @@
+%ifndef MACROSES 
+%define MACROS_MAC 
+
+SHADOW_SPACE equ 0x20
+
+extern memcpy
+extern memset
+extern malloc
+extern free
+
+%macro LOWORD 1
+and %1, 0xFFFF
+%endmacro
+%macro HIWORD 1
+sar %1, 16
+and %1, 0xFFFF
+%endmacro
+%macro prologue 1
+	push rbp
+	mov rbp,rsp
+	sub rsp,%1
+%endmacro
+%macro epilogue 1
+	add rsp,%1
+    mov rsp,rbp
+    pop rbp
+    ret
+%endmacro
+%macro clear 1-*
+	%rep %0
+        xor %1, %1
+        %rotate 1
+    %endrep
+%endmacro
+
+%macro zeroOut 2 ; fill certain area of memory with 0
+	lea rcx, [ %1 ]
+	xor rdx, rdx
+	mov r8, %2
+	call memset
+%endmacro
+
+%ifdef WINDOW_ASM
+	global hash
+	
+	global loadCur
+	global registerClass
+	global createContext
+	global ConstructWindow
+	
+	extern GetDC
+	extern LoadIconA
+	extern LoadImageA
+	extern LoadCursorA
+	extern wglMakeCurrent
+	extern SetPixelFormat
+	extern CreateWindowExA
+	extern wglCreateContext
+	extern RegisterClassExA
+	extern GetModuleHandleA
+	extern ChoosePixelFormat
+%endif
+
+%ifdef GAME_ASM
+	GL_BGR equ 0x80E0
+	GL_RGB equ 0x1907
+	
+	GL_QUADS				equ 0x0007
+	GL_LINEAR				equ 0x2601
+	GL_NEAREST				equ 0x2600  
+	GL_TEXTURE_2D			equ 0x0DE1
+	GL_UNSIGNED_BYTE		equ 0x1401
+	GL_TEXTURE_MIN_FILTER	equ 0x2801
+	GL_TEXTURE_MAG_FILTER	equ 0x2800
+	
+	EMPTY equ 0
+
+	W_PAWN		equ 1
+	W_KNIGHT	equ 2
+	W_ROOK		equ 3
+	W_BISHOP	equ 4
+	W_QUEEN		equ 5
+	W_KING		equ 6
+
+	B_PAWN		equ 7
+	B_KNIGHT	equ 8
+	B_ROOK		equ 9
+	B_BISHOP	equ 10
+	B_QUEEN		equ 11
+	B_KING		equ 12
+	
+	global prng
+	global renderTile
+	global placeFigures
+	global createBoard
+	global createTexture
+	global CoordsToCell
+	
+	extern GetClientRect
+	extern glBegin
+	extern glTexCoord2f
+	extern glVertex3f
+	extern glEnd
+	
+	extern glTexImage2D
+	extern glGenTextures
+	extern glBindTexture
+	extern glTexParameteri
+	
+	%macro texParameteri 3
+	mov ecx, %1
+	mov edx, %2
+	mov r8d, %3
+	call glTexParameteri
+	%endmacro
+	
+	%macro beginRendering 1
+	mov ecx, %1
+	call glBegin
+	%endmacro
+
+	%define endRendering call glEnd
+	
+	%macro bindTexture 2
+	mov ecx, %1
+	mov edx, %2
+	call glBindTexture
+	%endmacro
+	
+	%macro vertex3i 3
+	mov  ecx, %1
+	mov  edx, %2
+	mov  r8d, %3
+	call glVertex3i
+	%endmacro
+	
+	
+%endif
+%endif
